@@ -8,6 +8,7 @@
 
 ```
 $ dnf copr enable pkgstore/zstd
+$ dnf install -y zstd
 ```
 
 ### Open Build Service (OBS)
