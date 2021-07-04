@@ -23,6 +23,13 @@ $ dnf install -y zstd
 $ dnf upgrade -y zstd
 ```
 
+## Remove
+
+```
+$ dnf erase -y zstd
+$ dnf copr remove pkgstore/zstd
+```
+
 ## How to Build
 
 1. Get source from [src.fedoraproject.org](https://src.fedoraproject.org/rpms/zstd).
