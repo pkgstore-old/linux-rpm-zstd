@@ -1,3 +1,15 @@
+# enable asm implementations by default
+%bcond_without asm
+
+# enable .lz4 support by default
+%bcond_without lz4
+
+# enable .xz/.lzma support by default
+%bcond_without lzma
+
+# enable .gz support by default
+%bcond_without zlib
+
 %if 0%{?rhel} && 0%{?rhel} <= 6
 # gcc-4.4 is currently too old to compile pzstd
 %bcond_with pzstd
@@ -14,7 +26,7 @@
 %global release_prefix          100
 
 Name:                           zstd
-Version:                        1.5.0
+Version:                        1.5.2
 Release:                        %{release_prefix}%{?dist}
 Summary:                        Zstd compression library
 License:                        BSD and GPLv2
@@ -27,12 +39,23 @@ Source0:                        https://github.com/facebook/zstd/archive/v%{vers
 Source900:                      https://github.com/facebook/zstd/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.gz.sig
 
 Patch1:                         pzstd.1.patch
+Patch2:                         enable-CET.patch
 
 BuildRequires:                  make
 BuildRequires:                  gcc gtest-devel
+%if %{with lz4}
+BuildRequires:                  lz4-devel
+%endif
+%if %{with lzma}
+BuildRequires:                  xz-devel
+%endif
 %if %{with pzstd}
 BuildRequires:                  gcc-c++
 %endif
+%if %{with zlib}
+BuildRequires:                  zlib-devel
+%endif
+BuildRequires:                  execstack
 
 %description
 Zstd, short for Zstandard, is a fast lossless compression algorithm,
@@ -56,9 +79,6 @@ Zstandard compression shared library.
 Summary:                        Header files for Zstd library
 Requires:                       lib%{name}%{?_isa} = %{version}-%{release}
 
-%description -n lib%{name}-devel
-Header files for Zstd library.
-
 # -------------------------------------------------------------------------------------------------------------------- #
 # Package: libzstd-static
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -66,6 +86,9 @@ Header files for Zstd library.
 %package -n lib%{name}-static
 Summary:                        Static variant of the Zstd library
 Requires:                       lib%{name}-devel = %{version}-%{release}
+
+%description -n lib%{name}-devel
+Header files for Zstd library.
 
 %description -n lib%{name}-static
 Static variant of the Zstd library.
@@ -80,20 +103,24 @@ find -name .gitignore -delete
 %if %{with pzstd}
 %patch1 -p1
 %endif
-
+%patch2 -p1
 
 %build
 export CFLAGS="$RPM_OPT_FLAGS"
 export LDFLAGS="$RPM_LD_FLAGS"
-%{make_build} -C lib lib-mt
-%{make_build} -C programs
+export PREFIX="%{_prefix}"
+export LIBDIR="%{_libdir}"
+%{make_build} -C lib lib-mt %{!?with_asm:ZSTD_NO_ASM=1}
+%{make_build} -C programs %{!?with_asm:ZSTD_NO_ASM=1}
 %if %{with pzstd}
 export CXXFLAGS="$RPM_OPT_FLAGS"
-%{make_build} -C contrib/pzstd
+%{make_build} -C contrib/pzstd %{!?with_asm:ZSTD_NO_ASM=1}
 %endif
 
 
 %check
+execstack lib/libzstd.so.1
+
 export CFLAGS="$RPM_OPT_FLAGS"
 export LDFLAGS="$RPM_LD_FLAGS"
 %{__make} -C tests test-zstd
@@ -151,6 +178,37 @@ export CXXFLAGS="$RPM_OPT_FLAGS"
 
 
 %changelog
+* Mon Mar 28 2022 Package Store <mail@z17.dev> - 1.5.2-100
+- UPD: Rebuild by Package Store.
+
+* Sat Jan 22 2022 Pádraig Brady <P@draigBrady.com> - 1.5.2-1
+- Latest upstream
+
+* Sat Jan 22 2022 Fedora Release Engineering <releng@fedoraproject.org> - 1.5.1-7
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_36_Mass_Rebuild
+
+* Tue Jan 11 2022 Pádraig Brady <P@draigBrady.com> - 1.5.1-6
+- Re-enable CET protections (#2039353)
+
+* Fri Jan 07 2022 Michel Alexandre Salim <salimma@fedoraproject.org> - 1.5.1-5
+- Enable gz, .xz/.lzma and .lz4 support
+
+* Mon Jan 03 2022 Pádraig Brady <P@draigBrady.com> - 1.5.1-4
+- Use correct prefix for pkgconfig.
+
+* Wed Dec 29 2021 Pádraig Brady <P@draigBrady.com> - 1.5.1-3
+- Avoid executable stack on i686 also.
+
+* Tue Dec 28 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 1.5.1-2
+- Disable amd64 assembly on non-intel architectures (#2035802):
+  this should avoid the issue where an executable stack is created.
+
+* Wed Dec 22 2021 Pádraig Brady <P@draigBrady.com> - 1.5.1-1
+- Latest upstream
+
+* Fri Jul 23 2021 Fedora Release Engineering <releng@fedoraproject.org> - 1.5.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
+
 * Sat Jun 19 2021 Package Store <kitsune.solar@gmail.com> - 1.5.0-100
 - UPD: Move to Package Store.
 - UPD: License.

@@ -1,7 +1,7 @@
-diff -Naur zstd-1.4.7.orig/programs/zstd.1 zstd-1.4.7/programs/zstd.1
---- zstd-1.4.7.orig/programs/zstd.1	2020-12-16 23:00:18.000000000 +0000
-+++ zstd-1.4.7/programs/zstd.1	2020-12-17 15:15:22.586152398 +0000
-@@ -208,6 +208,14 @@
+diff -Naur zstd-1.5.2.orig/programs/zstd.1 zstd-1.5.2/programs/zstd.1
+--- zstd-1.5.2.orig/programs/zstd.1	2022-01-20 21:17:18.000000000 +0000
++++ zstd-1.5.2/programs/zstd.1	2022-01-22 17:40:54.130314058 +0000
+@@ -214,6 +214,13 @@
  .
  .IP "\(bu" 4
  \fB\-\-\fR: All arguments after \fB\-\-\fR are treated as files
@@ -11,7 +11,6 @@ diff -Naur zstd-1.4.7.orig/programs/zstd.1 zstd-1.4.7/programs/zstd.1
 +.TP
 +.BR \-p ", " --processes
 + number of threads to use for (de)compression (default:4)
-+
 +
  .
  .IP "" 0
