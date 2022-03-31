@@ -23,7 +23,7 @@
 %endif
 %endif
 
-%global release_prefix          100
+%global release_prefix          1000
 
 Name:                           zstd
 Version:                        1.5.2
@@ -31,12 +31,8 @@ Release:                        %{release_prefix}%{?dist}
 Summary:                        Zstd compression library
 License:                        BSD and GPLv2
 URL:                            https://github.com/facebook/zstd
-Vendor:                         Package Store <https://pkgstore.github.io>
-Packager:                       Kitsune Solar <kitsune.solar@gmail.com>
 
-Source0:                        https://github.com/facebook/zstd/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.gz
-# Signature.
-Source900:                      https://github.com/facebook/zstd/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.gz.sig
+Source0:                        %{name}-%{version}.tar.xz
 
 Patch1:                         pzstd.1.patch
 Patch2:                         enable-CET.patch
@@ -79,6 +75,9 @@ Zstandard compression shared library.
 Summary:                        Header files for Zstd library
 Requires:                       lib%{name}%{?_isa} = %{version}-%{release}
 
+%description -n lib%{name}-devel
+Header files for Zstd library.
+
 # -------------------------------------------------------------------------------------------------------------------- #
 # Package: libzstd-static
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -86,9 +85,6 @@ Requires:                       lib%{name}%{?_isa} = %{version}-%{release}
 %package -n lib%{name}-static
 Summary:                        Static variant of the Zstd library
 Requires:                       lib%{name}-devel = %{version}-%{release}
-
-%description -n lib%{name}-devel
-Header files for Zstd library.
 
 %description -n lib%{name}-static
 Static variant of the Zstd library.
@@ -106,14 +102,14 @@ find -name .gitignore -delete
 %patch2 -p1
 
 %build
-export CFLAGS="$RPM_OPT_FLAGS"
-export LDFLAGS="$RPM_LD_FLAGS"
+export CFLAGS="${RPM_OPT_FLAGS}"
+export LDFLAGS="${RPM_LD_FLAGS}"
 export PREFIX="%{_prefix}"
 export LIBDIR="%{_libdir}"
 %{make_build} -C lib lib-mt %{!?with_asm:ZSTD_NO_ASM=1}
 %{make_build} -C programs %{!?with_asm:ZSTD_NO_ASM=1}
 %if %{with pzstd}
-export CXXFLAGS="$RPM_OPT_FLAGS"
+export CXXFLAGS="${RPM_OPT_FLAGS}"
 %{make_build} -C contrib/pzstd %{!?with_asm:ZSTD_NO_ASM=1}
 %endif
 
@@ -121,11 +117,11 @@ export CXXFLAGS="$RPM_OPT_FLAGS"
 %check
 execstack lib/libzstd.so.1
 
-export CFLAGS="$RPM_OPT_FLAGS"
-export LDFLAGS="$RPM_LD_FLAGS"
+export CFLAGS="${RPM_OPT_FLAGS}"
+export LDFLAGS="${RPM_LD_FLAGS}"
 %{__make} -C tests test-zstd
 %if %{with pzstd}
-export CXXFLAGS="$RPM_OPT_FLAGS"
+export CXXFLAGS="${RPM_OPT_FLAGS}"
 %{__make} -C contrib/pzstd test
 %endif
 
@@ -174,11 +170,15 @@ export CXXFLAGS="$RPM_OPT_FLAGS"
 %files -n lib%{name}-static
 %{_libdir}/libzstd.a
 
-%ldconfig_scriptlets -n lib%{name}
+%{ldconfig_scriptlets} -n lib%{name}
 
 
 %changelog
-* Mon Mar 28 2022 Package Store <mail@z17.dev> - 1.5.2-100
+* Thu Mar 31 2022 Package Store <pkgstore@mail.ru> - 1.5.2-1000
+- UPD: Rebuild by Package Store.
+- UPD: File "zstd.spec".
+
+* Mon Mar 28 2022 Package Store <pkgstore@mail.ru> - 1.5.2-100
 - UPD: Rebuild by Package Store.
 
 * Sat Jan 22 2022 Pádraig Brady <P@draigBrady.com> - 1.5.2-1
@@ -208,10 +208,6 @@ export CXXFLAGS="$RPM_OPT_FLAGS"
 
 * Fri Jul 23 2021 Fedora Release Engineering <releng@fedoraproject.org> - 1.5.0-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
-
-* Sat Jun 19 2021 Package Store <kitsune.solar@gmail.com> - 1.5.0-100
-- UPD: Move to Package Store.
-- UPD: License.
 
 * Sun May 16 2021 Pádraig Brady <P@draigBrady.com> - 1.5.0-2
 - Latest upstream
@@ -243,20 +239,23 @@ export CXXFLAGS="$RPM_OPT_FLAGS"
 * Fri May 22 2020 Avi Kivity <avi@scylladb.com> - 1.4.4-3
 - Added static library subpackage
 
-* Fri Mar 13 2020 Package Store <kitsune.solar@gmail.com> - 1.4.4-101
-- UPD: master-f2d5ee.
+* Fri Jan 31 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.4.4-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
 
-* Mon Nov 11 2019 Package Store <kitsune.solar@gmail.com> - 1.4.4-100
-- NEW: v1.4.4.
+* Wed Jan 15 2020 Pádraig Brady <P@draigBrady.com> - 1.4.4-1
+- Latest upstream
 
-* Thu Oct 03 2019 Package Store <kitsune.solar@gmail.com> - 1.4.3-100
-- NEW: v1.4.3.
+* Wed Jul 31 2019 Pádraig Brady <P@draigBrady.com> - 1.4.2-1
+- Latest upstream
 
-* Sat Jun 29 2019 Package Store <kitsune.solar@gmail.com> - 1.4.0-100
-- UPD: MARKETPLACE.
+* Sat Jul 27 2019 Fedora Release Engineering <releng@fedoraproject.org> - 1.4.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 
-* Sat Jan 05 2019 Kitsune Solar <kitsune.solar@gmail.com> - 1.3.8-2
-- UPD: MARKETPLACE.
+* Mon Apr 29 2019 Pádraig Brady <P@draigBrady.com> - 1.4.0-1
+- Latest upstream
+
+* Sun Feb 03 2019 Fedora Release Engineering <releng@fedoraproject.org> - 1.3.8-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
 
 * Mon Dec 31 2018 Pádraig Brady <P@draigBrady.com> - 1.3.8-1
 - Latest upstream
