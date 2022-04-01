@@ -170,7 +170,7 @@ export CXXFLAGS="${RPM_OPT_FLAGS}"
 %files -n lib%{name}-static
 %{_libdir}/libzstd.a
 
-%{ldconfig_scriptlets} -n lib%{name}
+%ldconfig_scriptlets -n lib%{name}
 
 
 %changelog
